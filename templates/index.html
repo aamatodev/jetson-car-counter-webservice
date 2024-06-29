@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AJAX POST Request with Bootstrap</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<nav class="navbar navbar-dark bg-dark">
+  <div class="container-fluid">
+    <span class="navbar-brand mb-0 h1">Car counter webservice</span>
+  </div>
+</nav>
+
+<body>
+
+    <div>
+        <p class="text-center mt-4">This page will fetch data from a webservice every 200 ms and display the results below.</p>
+    </div>
+
+
+    <div class="container">
+
+        <form id="urlForm" class="mb-4">
+            <div class="form-group">
+                <label class="mt-4" for="urlInput">Service URL</label>
+                <input type="text" class="form-control" id="urlInput" placeholder="Enter Service URL">
+            </div>
+            <button type="button" class="btn btn-primary" onclick="startFetching()">Start Fetching</button>
+        </form>
+
+        <div class="row">
+            <div class="col">
+                <div class="card mb-3" style="max-width: 540px;">
+                  <div class="row g-0">
+                    <div class="col-md-2" id="car_label">
+
+                    </div>
+                    <div class="col-md-8">
+                      <div class="card-body">
+                        <h5 class="card-title">Car Counter</h5>
+                        <h1 class="card-text" id="carItem">5</h1>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="card mb-3" style="max-width: 540px;">
+                  <div class="row g-0">
+                    <div class="col-md-2 bg-dark" >
+
+                    </div>
+                    <div class="col-md-8">
+                      <div class="card-body">
+                        <h5 class="card-title">Object Counter</h5>
+                        <h1 class="card-text"  id="objsItem" >6</h1>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+
+        <ul id="resultList" class="list-group"></ul>
+    </div>
+
+
+
+    <script>
+        let intervalId = null;
+
+        function startFetching() {
+            const urlInput = document.getElementById('urlInput').value;
+
+            if (intervalId) {
+                clearInterval(intervalId);
+            }
+
+            function fetchData() {
+                const xhr = new XMLHttpRequest();
+                xhr.open("GET", urlInput, true);
+                xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === XMLHttpRequest.DONE) {
+                        if (xhr.status === 200) {
+                            console.log("Response received:", xhr.responseText); // Log the raw response
+                            const response = JSON.parse(xhr.responseText);
+                            console.log("Parsed response:", response); // Log the parsed response
+                            displayResults(response);
+                        } else {
+                            console.error("Error: " + xhr.status);
+                        }
+                    }
+                };
+
+                const data = JSON.stringify({ query: "your query data" });
+                xhr.send(data);
+            }
+
+            function displayResults(data) {
+                const resultList = document.getElementById("resultList");
+                resultList.innerHTML = ""; // Clear existing results
+
+                // Log the received data
+                console.log("Data to display:", data);
+
+                // Create list items for "car" and "objs"
+                const carItem = document.getElementById("carItem");
+                carItem.textContent = `${data.car}`;
+
+                if (data.car > 3){
+                    const bg = document.getElementById("car_label");
+                    bg.className = "col-md-2 bg-danger";
+                }
+                else{
+                    const bg = document.getElementById("car_label");
+                    bg.className = "col-md-2 bg-dark";
+                }
+
+                const objsItem = document.getElementById("objsItem");
+                objsItem.textContent = `${data.objs}`;
+            }
+
+            fetchData(); // Fetch immediately
+            intervalId = setInterval(fetchData, 300); // Fetch data every 5 seconds
+        }
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
